@@ -2,14 +2,14 @@
 
 echo "==============> QUICK sub Tool Running on $1"
 curl -s https://crt.sh/?q=%.$1  | sed 's/<\/\?[^>]\+>//g' | grep $1 | sort -u >> domains.txt
-curl -s https://certspotter.com/api/v0/certs\?domain\=$1 | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $1 >> domains.txt
+#curl -s https://certspotter.com/api/v0/certs\?domain\=$1 | jq '.[].dns_names[]' | sed 's/\"//g' | sed 's/\*\.//g' | sort -u | grep $1 >> domains.txt
 curl -s https://api.hackertarget.com/hostsearch/?q=$1 | cut -d',' -f1 | sort -u | grep $1 >> domains.txt
 curl -s https://www.threatcrowd.org/searchApi/v2/domain/report/?domain=$1 | jq -r '.subdomains | .[]' | sort -u >> domains.txt
 curl -s "http://web.archive.org/cdx/search/cdx?url=*.$1/*&output=text&fl=original&collapse=urlkey" |sort| sed -e 's_https*://__' -e "s/\/.*//" -e 's/:.*//' -e 's/^www\.//' | uniq | grep $1 >> domains.txt
 curl -s "https://dns.bufferover.run/dns?q=."$1 | jq -r .FDNS_A[]|cut -d',' -f2|sort -u >> domains.txt
 curl -s  -X POST --data "url=$1&Submit1=Submit" https://suip.biz/?act=findomain | grep $1 | cut -d ">" -f 2 | awk 'NF' | tail -n +2 | sed '$d' >> domains.txt
 curl -s  -X POST --data "url=$1&Submit1=Submit" https://suip.biz/?act=amass | grep $1 | cut -d ">" -f 2 | awk 'NF' >> domains.txt
-curl -iLs -w "\n%{http_code}" https://api.recon.dev/search?domain=$1 -A "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0" | jq .[].domain | grep $1 >> domains.txt
+#curl -iLs -w "\n%{http_code}" https://api.recon.dev/search?domain=$1 -A "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0" | jq .[].domain | grep $1 >> domains.txt
 curl -s  -X POST --data "url=$1&Submit1=Submit" https://suip.biz/?act=subfinder | grep $1 | cut -d ">" -f 2 | awk 'NF' >> domains.txt
 curl -s "https://rapiddns.io/subdomain/$1?full=1#result" | grep -oaEi "https?://[^\"\\'> ]+" | grep $1 | cut -d "/" -f3 | sort -u >> domains.txt
 curl -s "https://riddler.io/search/exportcsv?q=pld:$1"| grep -o "\w.*$1"|awk -F, '{print $6}'|sort -u >> domains.txt
